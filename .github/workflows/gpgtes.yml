@@ -1,0 +1,31 @@
+name: Test Debian & Surface Keys
+
+on:
+  workflow_dispatch:  # Manuell auslösbar
+  push:
+    branches:
+      - main
+
+jobs:
+  test-keys:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gnupg curl ca-certificates wget
+
+      - name: Run key setup script
+        run: |
+          bash scripts/setup-keys.sh  # Dein minimalistisches Skript
+
+      - name: Verify keys
+        run: |
+          echo "Listing Debian key:"
+          gpg --no-default-keyring --keyring /etc/apt/keyrings/debian-archive-keyring.gpg --list-keys
+          echo "Listing Surface key:"
+          gpg --no-default-keyring --keyring /etc/apt/keyrings/linux-surface-archive-keyring.gpg --list-keys
