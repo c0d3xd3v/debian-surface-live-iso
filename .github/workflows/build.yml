@@ -1,4 +1,4 @@
-name: Build Debian Surface Live ISO
+name: Build Ubuntu Surface Live ISO
 
 on:
   workflow_dispatch:
@@ -17,54 +17,44 @@ jobs:
       - name: Install Dependencies on Runner
         run: |
           sudo apt update
-          sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso ca-certificates debian-archive-keyring
+          sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso ca-certificates
 
       - name: Configure Live Build
         run: |
           lb config \
-            --distribution bookworm \
+            --distribution lunar \
             --binary-images iso-hybrid \
             --debian-installer live \
-            --archive-areas "main contrib non-free non-free-firmware" \
+            --archive-areas "main universe multiverse restricted" \
             --apt-recommends false \
             --debian-installer-gui true \
-            --mirror-bootstrap http://deb.debian.org/debian \
-            --mirror-chroot http://deb.debian.org/debian
+            --mirror-bootstrap http://archive.ubuntu.com/ubuntu \
+            --mirror-chroot http://archive.ubuntu.com/ubuntu
 
       - name: Setup Repositories in Chroot
         run: |
           mkdir -p config/archives
 
-          # Debian main + updates + security
-          cat <<EOF | sudo tee config/archives/debian.list.chroot
-          deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
-          deb http://deb.debian.org/debian bookworm-updates main contrib non-free
-          deb http://security.debian.org/debian-security bookworm-security main contrib non-free
-          EOF
-
           # Linux Surface repo
-          wget -qO - https://pkg.surfacelinux.com/debian/pubkey.gpg | gpg --dearmor | sudo tee config/archives/linux-surface.gpg.chroot
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/linux-surface-archive-keyring.gpg] https://pkg.surfacelinux.com/debian release main" \
+          wget -qO - https://pkg.surfacelinux.com/ubuntu/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/linux-surface-archive-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/linux-surface-archive-keyring.gpg] https://pkg.surfacelinux.com/ubuntu lunar main" \
             | sudo tee config/archives/linux-surface.list.chroot
 
       - name: Add Custom Package List
         run: |
           mkdir -p config/package-lists
-          cat <<EOF | tee config/package-lists/surface-kde.list.chroot
+          cat <<EOF | tee config/package-lists/surface.list.chroot
+          linux-image-surface
+          linux-headers-surface
+          iptsd
+          libwacom-surface
+          surface-control
           plasma-desktop
           kde-config-sddm
           sddm
           konsole
           dolphin
           okular
-          linux-image-surface
-          linux-headers-surface
-          iptsd
-          libwacom-surface
-          surface-control
-          libcamera
-          libcamera-tools
-          v4l-utils
           build-essential
           cmake
           gcc
@@ -76,26 +66,24 @@ jobs:
           htop
           flatpak
           gnome-software-plugin-flatpak
-          ca-certificates
-          debian-archive-keyring
           EOF
 
       - name: Enable IPTSD Auto-Start
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/enable-iptsd.chroot
-          #!/bin/sh
-          systemctl enable iptsd
-          EOF
+#!/bin/sh
+systemctl enable iptsd
+EOF
           chmod +x config/hooks/enable-iptsd.chroot
 
       - name: KDE Default Session
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/kde-default-session.chroot
-          #!/bin/sh
-          echo "/usr/bin/sddm" > /etc/X11/default-display-manager
-          EOF
+#!/bin/sh
+echo "/usr/bin/sddm" > /etc/X11/default-display-manager
+EOF
           chmod +x config/hooks/kde-default-session.chroot
 
       - name: Build ISO
@@ -106,7 +94,7 @@ jobs:
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: debian-surface-live-iso
+          name: ubuntu-surface-live-iso
           path: ./*.iso
           compression-level: 9
           overwrite: true
