@@ -35,12 +35,12 @@ jobs:
         run: |
           mkdir -p config/archives
 
-# Debian main + updates + security
-cat <<EOF | sudo tee config/archives/debian.list.chroot
-deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
-deb http://deb.debian.org/debian bookworm-updates main contrib non-free
-deb http://security.debian.org/debian-security bookworm-security main contrib non-free
-EOF
+          # Debian main + updates + security
+          cat <<EOF | sudo tee config/archives/debian.list.chroot
+          deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian bookworm-updates main contrib non-free
+          deb http://security.debian.org/debian-security bookworm-security main contrib non-free
+          EOF
 
           # Linux Surface repo
           wget -qO - https://pkg.surfacelinux.com/debian/pubkey.gpg | gpg --dearmor | sudo tee config/archives/linux-surface.gpg.chroot
