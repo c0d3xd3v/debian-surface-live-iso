@@ -26,8 +26,7 @@ jobs:
             --apt-recommends false \
             --debian-installer-gui true \
             --mirror-bootstrap http://deb.debian.org/debian \
-            --mirror-chroot http://deb.debian.org/debian \
-            --mirror-security http://security.debian.org/debian-security
+            --mirror-chroot http://deb.debian.org/debian
 
       - name: Add Linux-Surface Repository
         run: |
@@ -84,6 +83,15 @@ jobs:
           echo "/usr/bin/sddm" > /etc/X11/default-display-manager
           EOF
           chmod +x config/hooks/kde-default-session.chroot
+
+      - name: Add Security Repository Hook
+        run: |
+          mkdir -p config/hooks
+          cat <<EOF | tee config/hooks/add-security-repo.chroot
+          #!/bin/sh
+          echo "deb http://security.debian.org/debian-security bookworm-security main contrib non-free" >> /etc/apt/sources.list
+          EOF
+          chmod +x config/hooks/add-security-repo.chroot
 
       - name: Build ISO
         run: |
