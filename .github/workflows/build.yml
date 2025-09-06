@@ -1,7 +1,7 @@
 name: Build Debian Surface Live ISO
 
 on:
-  workflow_dispatch:  # Manuelles Starten
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso ca-certificates
+          sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso ca-certificates debian-archive-keyring
 
       - name: Configure Live Build
         run: |
@@ -84,7 +84,7 @@ jobs:
           EOF
           chmod +x config/hooks/kde-default-session.chroot
 
-      - name: Add Security Repository Hook
+      - name: Add Debian Security Repository Hook
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/add-security-repo.chroot
