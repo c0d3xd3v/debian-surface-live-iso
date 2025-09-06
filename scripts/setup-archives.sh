@@ -11,28 +11,13 @@ deb http://deb.debian.org/debian bookworm-updates main contrib non-free
 deb http://security.debian.org/debian-security bookworm-security main contrib non-free
 EOF
 
-echo ">>> Installing prerequisites..."
+echo ">>> Installing debian-archive-keyring..."
 sudo apt-get update -y
-sudo apt-get install -y --no-install-recommends gnupg ca-certificates wget curl
+sudo apt-get install -y --no-install-recommends debian-archive-keyring ca-certificates wget gnupg
 
-echo ">>> Importing missing Debian GPG keys..."
-# Hier alle benötigten Keys, die in deinem Fehler gelistet wurden:
-KEYS=(
-    6ED0E7B82643E131
-    78DBA3BC47EF2265
-    F8D2585B8783D481
-    54404762BBB6E853
-    BDE6D2B9216EC7A8
-)
-
-for key in "${KEYS[@]}"; do
-    echo "  -> Importing key: $key"
-    gpg --keyserver keyserver.ubuntu.com --recv-keys "$key" || {
-        echo "!!! Failed to get $key from keyserver. Trying hkps://keys.openpgp.org..."
-        gpg --keyserver hkps://keys.openpgp.org --recv-keys "$key"
-    }
-    gpg --export "$key" | sudo tee "/etc/apt/trusted.gpg.d/debian-$key.gpg" >/dev/null
-done
+echo ">>> Copying Debian trusted keys..."
+# Debian liefert alle Keys hier mit
+sudo cp /usr/share/keyrings/debian-archive-keyring.gpg /etc/apt/trusted.gpg.d/debian-archive-keyring.gpg
 
 echo ">>> Adding Linux Surface repository..."
 wget -qO - https://pkg.surfacelinux.com/debian/pubkey.gpg \
