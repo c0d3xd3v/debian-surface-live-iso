@@ -84,9 +84,9 @@ jobs:
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/enable-iptsd.chroot
-#!/bin/sh
-systemctl enable iptsd
-EOF
+            #!/bin/sh
+            systemctl enable iptsd
+            EOF
           chmod +x config/hooks/enable-iptsd.chroot
 
       - name: KDE Default Session
