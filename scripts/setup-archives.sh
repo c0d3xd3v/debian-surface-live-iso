@@ -17,8 +17,8 @@ sudo apt-get install -y --no-install-recommends debian-archive-keyring
 echo ">>> Copying Debian keyring to /etc/apt/keyrings..."
 sudo cp /usr/share/keyrings/debian-archive-keyring.gpg /etc/apt/keyrings/debian-archive-keyring.gpg
 
-echo ">>> Adding Linux Surface key..."
-wget -qO - https://pkg.surfacelinux.com/debian/pubkey.gpg \
+echo ">>> Adding Linux Surface key to keyrings..."
+curl -fsSL https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc \
     | gpg --dearmor \
     | sudo tee /etc/apt/keyrings/linux-surface-archive-keyring.gpg >/dev/null
 
@@ -29,7 +29,7 @@ deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://deb.debian.o
 deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://security.debian.org/debian-security bookworm-security main contrib non-free
 EOF
 
-echo ">>> Adding Linux Surface repository..."
+echo ">>> Adding Linux Surface repository with explicit keyring..."
 sudo tee /etc/apt/sources.list.d/linux-surface.list > /dev/null <<EOF
 deb [arch=amd64 signed-by=/etc/apt/keyrings/linux-surface-archive-keyring.gpg] https://pkg.surfacelinux.com/debian release main
 EOF
