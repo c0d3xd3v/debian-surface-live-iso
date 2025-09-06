@@ -31,17 +31,7 @@ jobs:
         run: bash scripts/enable-hooks.sh
 
       - name: Configure Live Build
-        run: |
-          chmod +x config/hooks/normal/010-setup-keys.chroot
-          lb config \
-            --distribution bookworm \
-            --binary-images iso-hybrid \
-            --debian-installer live \
-            --archive-areas "main contrib non-free non-free-firmware" \
-            --apt-recommends false \
-            --debian-installer-gui true \
-            --mirror-bootstrap http://deb.debian.org/debian \
-            --mirror-chroot http://deb.debian.org/debian
+        run: scripts/config_live_build.sh
 
       - name: Build ISO
         run: |

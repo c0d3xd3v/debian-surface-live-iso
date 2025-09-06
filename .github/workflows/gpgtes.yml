@@ -2,10 +2,6 @@ name: Test Debian & Surface Keys
 
 on:
   workflow_dispatch:  # Manuell auslösbar
-  push:
-    branches:
-      - main
-
 jobs:
   test-keys:
     runs-on: ubuntu-latest
