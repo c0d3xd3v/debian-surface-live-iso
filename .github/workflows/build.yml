@@ -93,9 +93,9 @@ jobs:
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/kde-default-session.chroot
-#!/bin/sh
-echo "/usr/bin/sddm" > /etc/X11/default-display-manager
-EOF
+            #!/bin/sh
+            echo "/usr/bin/sddm" > /etc/X11/default-display-manager
+            EOF
           chmod +x config/hooks/kde-default-session.chroot
 
       - name: Build ISO
