@@ -18,6 +18,9 @@ jobs:
           sudo apt update
           sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso ca-certificates debian-archive-keyring
 
+      - name: Run key setup script
+        run: bash scripts/setup-keys.sh
+
       - name: Setup Archives
         run: bash scripts/setup-archives.sh
 
