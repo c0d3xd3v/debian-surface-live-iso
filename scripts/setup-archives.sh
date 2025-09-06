@@ -15,9 +15,9 @@ echo ">>> Installing prerequisites..."
 sudo apt-get update -y
 sudo apt-get install -y gnupg curl ca-certificates wget
 
-echo ">>> Installing Debian archive keyring..."
-curl -fsSL http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2024.1_all.deb -o /tmp/keyring.deb
-sudo dpkg -i /tmp/keyring.deb
+#echo ">>> Installing Debian archive keyring..."
+#curl -fsSL http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2024.1_all.deb -o /tmp/keyring.deb
+#sudo dpkg -i /tmp/keyring.deb
 
 sudo mkdir -p /etc/apt/keyrings
 sudo cp /usr/share/keyrings/debian-archive-keyring.gpg /etc/apt/keyrings/debian-archive-keyring.gpg
