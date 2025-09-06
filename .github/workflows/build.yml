@@ -14,7 +14,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y live-build debootstrap wget curl git gnupg
+          sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso
 
       - name: Configure Live Build
         run: |
@@ -24,7 +24,9 @@ jobs:
             --debian-installer live \
             --archive-areas "main contrib non-free non-free-firmware" \
             --apt-recommends false \
-            --debian-installer-gui true
+            --debian-installer-gui true \
+            --mirror-bootstrap http://deb.debian.org/debian \
+            --mirror-chroot http://deb.debian.org/debian
 
       - name: Add Linux-Surface Repository
         run: |
@@ -74,11 +76,24 @@ jobs:
           EOF
           chmod +x config/hooks/enable-iptsd.chroot
 
+      - name: KDE Default Session
+        run: |
+          mkdir -p config/hooks
+          cat <<EOF | tee config/hooks/kde-default-session.chroot
+          #!/bin/sh
+          echo "/usr/bin/sddm" > /etc/X11/default-display-manager
+          EOF
+          chmod +x config/hooks/kde-default-session.chroot
+
       - name: Build ISO
-        run: sudo lb build
+        run: |
+          sudo lb clean
+          sudo lb build
 
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
           name: debian-surface-live-iso
           path: ./*.iso
+          compression-level: 9
+          overwrite: true
