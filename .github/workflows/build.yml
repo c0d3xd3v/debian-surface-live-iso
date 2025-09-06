@@ -32,6 +32,7 @@ jobs:
 
       - name: Configure Live Build
         run: |
+          chmod +x config/hooks/normal/010-setup-keys.chroot
           lb config \
             --distribution bookworm \
             --binary-images iso-hybrid \
