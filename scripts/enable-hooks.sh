@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
-cp config/hooks/*.chroot /etc/live/build/hooks/
-chmod +x /etc/live/build/hooks/*.chroot
+sudo cp chroot-config/hooks/*.chroot /etc/live/build/hooks/
+sudo chmod +x /etc/live/build/hooks/*.chroot
