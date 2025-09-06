@@ -28,68 +28,71 @@ jobs:
             --mirror-bootstrap http://deb.debian.org/debian \
             --mirror-chroot http://deb.debian.org/debian
 
-      - name: Add Linux-Surface Repository in Chroot
+      - name: Setup Repositories in Chroot
         run: |
           mkdir -p config/archives
+
+          # Debian main + updates + security
+          cat <<EOF | sudo tee config/archives/debian.list.chroot
+deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security bookworm-security main contrib non-free
+EOF
+
+          # Linux Surface repo
           wget -qO - https://pkg.surfacelinux.com/debian/pubkey.gpg | gpg --dearmor | sudo tee config/archives/linux-surface.gpg.chroot
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/linux-surface-archive-keyring.gpg] https://pkg.surfacelinux.com/debian release main" \
             | sudo tee config/archives/linux-surface.list.chroot
-
-      - name: Add Debian Security Repository in Chroot
-        run: |
-          mkdir -p config/archives
-          echo "deb http://security.debian.org/debian-security bookworm-security main contrib non-free" \
-            | sudo tee config/archives/debian-security.list.chroot
 
       - name: Add Custom Package List
         run: |
           mkdir -p config/package-lists
           cat <<EOF | tee config/package-lists/surface-kde.list.chroot
-          plasma-desktop
-          kde-config-sddm
-          sddm
-          konsole
-          dolphin
-          okular
-          linux-image-surface
-          linux-headers-surface
-          iptsd
-          libwacom-surface
-          surface-control
-          libcamera
-          libcamera-tools
-          v4l-utils
-          build-essential
-          cmake
-          gcc
-          g++
-          make
-          wget
-          curl
-          git
-          htop
-          flatpak
-          gnome-software-plugin-flatpak
-          ca-certificates
-          debian-archive-keyring
-          EOF
+plasma-desktop
+kde-config-sddm
+sddm
+konsole
+dolphin
+okular
+linux-image-surface
+linux-headers-surface
+iptsd
+libwacom-surface
+surface-control
+libcamera
+libcamera-tools
+v4l-utils
+build-essential
+cmake
+gcc
+g++
+make
+wget
+curl
+git
+htop
+flatpak
+gnome-software-plugin-flatpak
+ca-certificates
+debian-archive-keyring
+EOF
 
       - name: Enable IPTSD Auto-Start
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/enable-iptsd.chroot
-          #!/bin/sh
-          systemctl enable iptsd
-          EOF
+#!/bin/sh
+systemctl enable iptsd
+EOF
           chmod +x config/hooks/enable-iptsd.chroot
 
       - name: KDE Default Session
         run: |
           mkdir -p config/hooks
           cat <<EOF | tee config/hooks/kde-default-session.chroot
-          #!/bin/sh
-          echo "/usr/bin/sddm" > /etc/X11/default-display-manager
-          EOF
+#!/bin/sh
+echo "/usr/bin/sddm" > /etc/X11/default-display-manager
+EOF
           chmod +x config/hooks/kde-default-session.chroot
 
       - name: Build ISO
