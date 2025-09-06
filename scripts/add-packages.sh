@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-cp config/package-lists/surface-kde.list.chroot /etc/live/build/package-lists/
+cp chroot-config/package-lists/surface-kde.list.chroot /etc/live/build/package-lists/
