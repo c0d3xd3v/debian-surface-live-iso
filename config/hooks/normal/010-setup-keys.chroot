@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e
+
+echo ">>> Setting up Debian and Surface keys in chroot..."
+
+# Keyrings-Verzeichnis anlegen
+mkdir -p /etc/apt/keyrings
+
+# Debian-Archiv-Keyring
+cp /usr/share/keyrings/debian-archive-keyring.gpg /etc/apt/keyrings/debian-archive-keyring.gpg
+
+# Surface-Key
+curl -fsSL https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc \
+    | gpg --dearmor \
+    | tee /etc/apt/keyrings/linux-surface-archive-keyring.gpg >/dev/null
+
+# Debian sources.list mit expliziten Keyrings
+cat > /etc/apt/sources.list <<EOF
+deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://deb.debian.org/debian bookworm-updates main contrib non-free
+deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://security.debian.org/debian-security bookworm-security main contrib non-free
+deb [arch=amd64 signed-by=/etc/apt/keyrings/linux-surface-archive-keyring.gpg] https://pkg.surfacelinux.com/debian release main
+EOF
+
+echo ">>> Updating package lists..."
+apt-get update -y
+
+echo ">>> Listing keys to verify..."
+echo "Debian keys:"
+gpg --no-default-keyring --keyring /etc/apt/keyrings/debian-archive-keyring.gpg --list-keys
+echo
+echo "Surface keys:"
+gpg --no-default-keyring --keyring /etc/apt/keyrings/linux-surface-archive-keyring.gpg --list-keys
+
+echo ">>> Key setup in chroot complete."
