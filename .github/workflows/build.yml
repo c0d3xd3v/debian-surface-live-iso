@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,7 +38,7 @@ jobs:
           # Debian main + updates + security
           cat <<EOF | sudo tee config/archives/debian.list.chroot
 deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
-deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free
 deb http://security.debian.org/debian-security bookworm-security main contrib non-free
 EOF
 
