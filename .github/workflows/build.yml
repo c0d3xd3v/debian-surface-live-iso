@@ -2,9 +2,6 @@ name: Build Debian Surface Live ISO
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   build:
@@ -19,6 +16,15 @@ jobs:
           sudo apt update
           sudo apt install -y live-build debootstrap wget curl git gnupg squashfs-tools xorriso ca-certificates debian-archive-keyring
 
+      - name: Setup Archives
+        run: bash scripts/setup-archives.sh
+
+      - name: Add Packages
+        run: bash scripts/add-packages.sh
+
+      - name: Enable Hooks
+        run: bash scripts/enable-hooks.sh
+
       - name: Configure Live Build
         run: |
           lb config \
@@ -30,13 +36,6 @@ jobs:
             --debian-installer-gui true \
             --mirror-bootstrap http://deb.debian.org/debian \
             --mirror-chroot http://deb.debian.org/debian
-
-      - name: Copy Chroot Configuration
-        run: |
-          mkdir -p config/archives config/package-lists config/hooks
-          cp -r chroot-configs/archives/* config/archives/
-          cp -r chroot-configs/package-lists/* config/package-lists/
-          cp -r chroot-configs/hooks/* config/hooks/
 
       - name: Build ISO
         run: |
