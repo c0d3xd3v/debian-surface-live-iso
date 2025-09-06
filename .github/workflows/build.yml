@@ -31,7 +31,7 @@ jobs:
         run: bash scripts/enable-hooks.sh
 
       - name: Configure Live Build
-        run: scripts/config_live_build.sh
+        run: bash scripts/config_live_build.sh
 
       - name: Build ISO
         run: |
