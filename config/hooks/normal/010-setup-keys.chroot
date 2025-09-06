@@ -2,7 +2,7 @@
 set -e
 
 echo ">>> Setting up Debian and Surface keys in chroot..."
-
+sudo rm -f /etc/apt/sources.list.d/*.list
 # Keyrings-Verzeichnis anlegen
 mkdir -p /etc/apt/keyrings
 
@@ -23,7 +23,6 @@ deb [arch=amd64 signed-by=/etc/apt/keyrings/linux-surface-archive-keyring.gpg] h
 EOF
 
 echo ">>> Updating package lists..."
-sudo rm -f /etc/apt/sources.list.d/*.list
 apt-get update -y
 
 echo ">>> Listing keys to verify..."
