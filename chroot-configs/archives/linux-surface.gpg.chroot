@@ -1,1 +1,0 @@
-wget -qO - https://pkg.surfacelinux.com/debian/pubkey.gpg | gpg --dearmor > linux-surface.gpg.chroot

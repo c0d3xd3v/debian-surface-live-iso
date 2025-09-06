@@ -1,2 +1,0 @@
-#!/bin/sh
-echo "/usr/bin/sddm" > /etc/X11/default-display-manager

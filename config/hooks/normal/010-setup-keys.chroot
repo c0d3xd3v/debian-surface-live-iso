@@ -23,6 +23,7 @@ deb [arch=amd64 signed-by=/etc/apt/keyrings/linux-surface-archive-keyring.gpg] h
 EOF
 
 echo ">>> Updating package lists..."
+sudo rm -f /etc/apt/sources.list.d/*.list
 apt-get update -y
 
 echo ">>> Listing keys to verify..."
