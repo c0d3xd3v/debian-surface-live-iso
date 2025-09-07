@@ -1,66 +1,65 @@
 #!/bin/bash
 set -e
 
-echo ">>> Bereinige alten Build..."
+echo ">>> Starte Live-Build Konfiguration..."
+
+# 1. Live-Build aufräumen
 sudo lb clean
 
-echo ">>> Konfiguriere Live-Build..."
-lb config \
-  --distribution bookworm \
-  --binary-images iso-hybrid \
-  --debian-installer live \
-  --debian-installer-gui true \
-  --archive-areas "main contrib non-free non-free-firmware" \
-  --apt-recommends false \
-  --mirror-bootstrap http://deb.debian.org/debian \
-  --mirror-chroot http://deb.debian.org/debian
-
-echo ">>> Erzeuge Basis-System (Bootstrap)..."
+# 2. Bootstrap vorbereiten
 sudo lb bootstrap
 
-echo ">>> Baue Chroot-Umgebung..."
-sudo lb chroot
-
-echo ">>> Setze neue APT-Sources und Keys..."
+# 3. Mounts für Chroot
 sudo mount -t proc /proc binary/chroot/proc
 sudo mount --rbind /sys binary/chroot/sys
 sudo mount --rbind /dev binary/chroot/dev
 
+echo ">>> Wechsel ins Chroot..."
 sudo chroot binary/chroot /bin/bash <<'EOF'
 set -e
 
-echo ">>> Bereinige alte APT-Sources..."
+echo ">>> Bereinige alte APT-Konfiguration..."
 rm -f /etc/apt/sources.list.d/*.list
 rm -f /etc/apt/sources.list
 
-echo ">>> Installiere CA-Zertifikate & GnuPG..."
+echo ">>> Installiere wichtige Pakete..."
 apt-get update
-apt-get install -y ca-certificates gnupg curl
+apt-get install -y --no-install-recommends ca-certificates gnupg curl apt-transport-https
 
-echo ">>> Installiere Surface-Key..."
 mkdir -p /etc/apt/keyrings
-curl -fsSL https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc \
-    | gpg --dearmor \
-    | tee /etc/apt/keyrings/linux-surface-archive-keyring.gpg >/dev/null
 
-echo ">>> Neue sources.list schreiben..."
+# Debian-Archiv-Key
+cp /usr/share/keyrings/debian-archive-keyring.gpg /etc/apt/keyrings/debian-archive-keyring.gpg
+
+# Surface-Key laden
+echo ">>> Lade Linux-Surface Key..."
+if ! curl -fsSL https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc \
+    | gpg --dearmor \
+    | tee /etc/apt/keyrings/linux-surface-archive-keyring.gpg >/dev/null; then
+    echo ">>> HTTPS fehlgeschlagen, wechsle zu HTTP für Surface Repo"
+    SURFACE_PROTO="http"
+else
+    SURFACE_PROTO="https"
+fi
+
+# Neue sources.list
 cat > /etc/apt/sources.list <<EOL
 deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
 deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://deb.debian.org/debian bookworm-updates main contrib non-free
 deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] http://security.debian.org/debian-security bookworm-security main contrib non-free
-deb [arch=amd64 signed-by=/etc/apt/keyrings/linux-surface-archive-keyring.gpg] https://pkg.surfacelinux.com/debian release main
+deb [arch=amd64 signed-by=/etc/apt/keyrings/linux-surface-archive-keyring.gpg] ${SURFACE_PROTO}://pkg.surfacelinux.com/debian release main
 EOL
 
 echo ">>> Aktualisiere Paketlisten..."
-apt-get update
+apt-get update || true
+
 EOF
 
-echo ">>> Unmount Chroot..."
+echo ">>> Unmounting..."
 sudo umount -lf binary/chroot/proc
 sudo umount -lf binary/chroot/sys
 sudo umount -lf binary/chroot/dev
 
-echo ">>> Baue finale ISO..."
+echo ">>> Baue ISO..."
+sudo lb chroot
 sudo lb binary
-
-echo ">>> Build erfolgreich abgeschlossen!"
